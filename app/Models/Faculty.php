@@ -14,4 +14,14 @@ class Faculty extends Model
         'name',
         'description',
     ];
+
+    public function books()
+    {
+        return $this->belongsToMany(Book::class);
+    }
+
+    public function students()
+    {
+        return $this->hasMany(Student::class);
+    }
 }

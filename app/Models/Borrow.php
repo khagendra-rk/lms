@@ -18,4 +18,19 @@ class Borrow extends Model
         'issued_at',
         'returned_at',
     ];
+
+    public function index()
+    {
+        return $this->belongsTo(Index::class);
+    }
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
+
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class);
+    }
 }
