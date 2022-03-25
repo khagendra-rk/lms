@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->string('registration_no')->nullable();
             $table->string('symbol_no');
-            $table->string('documents');
+            $table->string('documents')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Faculty;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,8 +17,22 @@ class StudentFactory extends Factory
      */
     public function definition()
     {
+        $count = Faculty::count();
+        $id = mt_rand(1, $count - 1);
+
         return [
-            //
+            'name' => $this->faker->name(),
+            'email' => $this->faker->safeEmail(),
+            'phone_no' => mt_rand(9800000000, 9999999999),
+            'address' => $this->faker->city(),
+            'parent_name' => $this->faker->name(),
+            'parent_contact' => mt_rand(9800000000, 9999999999),
+            'college_email' => $this->faker->safeEmail(),
+            'faculty_id' => $id,
+            'year' => $this->faker->year(),
+            'image' => $this->faker->imageUrl(),
+            'registration_no' => $this->faker->unique()->numberBetween(1, 200000),
+            'symbol_no' => $this->faker->unique()->numberBetween(1, 150000),
         ];
     }
 }

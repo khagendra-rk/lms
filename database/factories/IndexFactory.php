@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Book;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,8 +17,17 @@ class IndexFactory extends Factory
      */
     public function definition()
     {
+        $book_ids = Book::all()->pluck('prefix', 'id')->toArray();
+
+        $total = count($book_ids);
+        $id = mt_rand(1, $total - 1);
+        $code = $book_ids[$id];
+
         return [
-            //
+            'book_id' => $id,
+            'book_prefix' => $code,
+            'code' => $this->faker->unique()->numberBetween(100, 1000),
+            'borrowed' => $this->faker->boolean(),
         ];
     }
 }

@@ -17,7 +17,8 @@ class FacultyFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'name' => $this->faker->randomElement(['CSIT', 'BCA', 'BHM', 'BIM']),
+            'description' => $this->faker->sentence,
         ];
     }
 }
