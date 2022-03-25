@@ -18,4 +18,9 @@ class Teacher extends Model
         'college_email',
         'image',
     ];
+
+    public function borrows()
+    {
+        return $this->hasMany(Borrow::class);
+    }
 }

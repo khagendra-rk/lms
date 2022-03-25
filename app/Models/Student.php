@@ -25,4 +25,14 @@ class Student extends Model
         'documents',
 
     ];
+
+    public function faculty()
+    {
+        return $this->belongsTo(Faculty::class);
+    }
+
+    public function borrows()
+    {
+        return $this->hasMany(Borrow::class);
+    }
 }

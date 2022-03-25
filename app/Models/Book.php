@@ -19,5 +19,16 @@ class Book extends Model
         'book_type',
         'price',
         'prefix',
+        'added by',
     ];
+
+    public function faculties()
+    {
+        return $this->belongsToMany(Faculty::class);
+    }
+
+    public function indices()
+    {
+        return $this->hasMany(Index::class);
+    }
 }
