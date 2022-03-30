@@ -13,12 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('indices', function (Blueprint $table) {
+        Schema::create('documents', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('book_id')->constrained();
-            $table->string('book_prefix');
-            $table->integer('code')->unsigned()->unique();
-            $table->boolean('is_borrowed')->default(0);
+            $table->string('type');
+            $table->foreignId('student_id')->constrained();
+            $table->string('file')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('indices');
+        Schema::dropIfExists('documents');
     }
 };

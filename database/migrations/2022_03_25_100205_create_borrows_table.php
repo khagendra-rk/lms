@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('student_id')->nullable()->constrained();
             $table->foreignId('teacher_id')->nullable()->constrained();
             $table->foreignId('index_id')->nullable()->constrained();
-            $table->string('issued_by');
+            $table->foreignID('issued_by')->constrained('users', 'id');
             $table->timestamp('issued_at');
             $table->timestamp('returned_at')->nullable();
             $table->timestamps();

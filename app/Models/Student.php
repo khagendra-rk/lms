@@ -23,7 +23,7 @@ class Student extends Model
         'symbol_no',
         'image',
         'documents',
-
+        'faculty_id',
     ];
 
     public function faculty()
@@ -34,5 +34,9 @@ class Student extends Model
     public function borrows()
     {
         return $this->hasMany(Borrow::class);
+    }
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
     }
 }

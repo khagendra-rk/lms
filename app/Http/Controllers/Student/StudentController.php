@@ -15,7 +15,9 @@ class StudentController extends Controller
      */
     public function index()
     {
-        //
+        $students = Student::with('faculty:id,name')->paginate(10);
+
+        return response()->json($students);
     }
 
     /**
@@ -26,7 +28,28 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'name'          => ['required'],
+            'phone_no'      => ['required', 'integer', 'digits:10', 'regex:/((98)|(97))(\d){8}/'],
+            'address'       => ['required'],
+            'email'         => ['required', 'email', 'unique:students,email'],
+            'college_email' => ['required', 'email', 'unique:students,college_email'],
+            'faculty_id'    => ['required', 'exists:faculties,id'],
+            'parent_name'   => ['required'],
+            'parent_contact' => ['required', 'integer', 'digits:10', 'regex:/((98)|(97))(\d){8}/'],
+            'year'           => ['required', 'integer', 'min:' . config('app.year')],
+            'image'          => ['nullable', 'image', 'mimes:jpeg,png,gif'],
+            'registration_no' => ['nullable'],
+            'symbol_no'      => ['required'],
+        ]);
+
+        if ($request->hasFile('image')) {
+            $data['image'] = MediaService::upload($request->file('image'), "students");
+        }
+
+        $student = Student::create($data);
+
+        return response()->json($student, 201);
     }
 
     /**
@@ -37,7 +60,9 @@ class StudentController extends Controller
      */
     public function show(Student $student)
     {
-        //
+        $student->load('faculty:id,name');
+
+        return response()->json($student);
     }
 
     /**
@@ -49,7 +74,33 @@ class StudentController extends Controller
      */
     public function update(Request $request, Student $student)
     {
-        //
+        $data = $request->validate([
+            'name'          => ['required'],
+            'phone_no'      => ['required', 'integer', 'digits:10', 'regex:/((98)|(97))(\d){8}/'],
+            'address'       => ['required'],
+            'email'         => ['required', 'email', 'unique:students,email'],
+            'college_email' => ['required', 'email', 'unique:students,college_email'],
+            'faculty_id'    => ['required', 'exists:faculties,id'],
+            'parent_name'   => ['required'],
+            'parent_contact' => ['required', 'integer', 'digits:10', 'regex:/((98)|(97))(\d){8}/'],
+            'year'           => ['required', 'integer', 'min:' . config('app.year')],
+            'image'          => ['nullable', 'image', 'mimes:jpeg,png,gif'],
+            'registration_no' => ['nullable'],
+            'symbol_no'      => ['nullable'],
+        ]);
+        if ($request->hasFile('image')) {
+            if (!empty($student->image)) {
+                Storage::delete('public/' . $student->image);
+            }
+
+            $data['image'] = MediaService::upload($request->file('image'), "students");
+        } else {
+            unset($data['image']);
+        }
+
+        $student->update($data);
+        $student->fresh();
+        return response()->json($student);
     }
 
     /**
@@ -60,6 +111,8 @@ class StudentController extends Controller
      */
     public function destroy(Student $student)
     {
-        //
+        $student->delete();
+
+        return response()->noContent();
     }
 }

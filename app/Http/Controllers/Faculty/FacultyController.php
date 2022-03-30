@@ -15,7 +15,8 @@ class FacultyController extends Controller
      */
     public function index()
     {
-        //
+        $faculties = Faculty::all();
+        return response()->json($faculties);
     }
 
     /**
@@ -26,7 +27,13 @@ class FacultyController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'name'      => ['required'],
+            'description' => ['nullable'],
+        ]);
+        $faculty = Faculty::create($data);
+
+        return response()->json($faculty, 201);
     }
 
     /**
@@ -37,7 +44,7 @@ class FacultyController extends Controller
      */
     public function show(Faculty $faculty)
     {
-        //
+        return response()->json($faculty);
     }
 
     /**
@@ -49,7 +56,14 @@ class FacultyController extends Controller
      */
     public function update(Request $request, Faculty $faculty)
     {
-        //
+        $data = $request->validate([
+            'name'      => ['required'],
+            'description' => ['nullable'],
+        ]);
+        $faculty->update($data);
+        $faculty->fresh();
+
+        return response()->json($faculty);
     }
 
     /**
@@ -60,6 +74,8 @@ class FacultyController extends Controller
      */
     public function destroy(Faculty $faculty)
     {
-        //
+        $faculty->delete();
+
+        return response()->noContent();
     }
 }

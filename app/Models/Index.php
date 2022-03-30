@@ -14,7 +14,7 @@ class Index extends Model
         'book_id',
         'book_prefix',
         'code',
-        'borrowed',
+        'is_borrowed',
 
     ];
 
@@ -23,7 +23,7 @@ class Index extends Model
         return $this->belongsTo(Book::class);
     }
 
-    public function borrow()
+    public function borrows()
     {
         return $this->hasMany(Borrow::class);
     }
