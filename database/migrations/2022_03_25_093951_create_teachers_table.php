@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('phone_no');
             $table->string('address');
             $table->string('email')->unique();
-            $table->string('college_email');
+            $table->string('college_email')->nullable();
             $table->string('image')->nullable();
             $table->timestamps();
             $table->softDeletes();

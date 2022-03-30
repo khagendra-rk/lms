@@ -22,7 +22,7 @@ class BorrowFactory extends Factory
         $index_count = Index::count();
 
         $arr = [
-            'issued_by' => "Librarian",
+            'issued_by' => 2,
             'index_id' => mt_rand(1, $index_count),
             'issued_at' => $this->faker->dateTimeBetween('-1 months', '+1 days'),
             'returned_at' => mt_rand(0, 1) ? null : $this->faker->dateTimeBetween('+2 days', '+3 months'),

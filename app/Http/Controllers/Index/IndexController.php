@@ -15,7 +15,9 @@ class IndexController extends Controller
      */
     public function index()
     {
-        //
+        $indices = Index::paginate(30);
+
+        return response()->json($indices);
     }
 
     /**
@@ -26,7 +28,31 @@ class IndexController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'book_id' => ['required', 'exists:books,id'],
+            'code'    => ['required'],
+        ]);
+
+        $book = Book::find($request->book_id);
+
+        $check = Index::query()
+            ->where('book_prefix', $book->prefix)
+            ->where('code', $request->code)
+            ->first();
+
+        if ($check) {
+            throw ValidationException::withMessages([
+                'code' => ['The provided code is taken.'],
+            ]);
+        }
+
+        $index = Index::create([
+            'book_id' => $request->book_id,
+            'code' => $request->code,
+            'book_prefix' => $book->prefix,
+        ]);
+
+        return response()->json($index);
     }
 
     /**
@@ -37,7 +63,9 @@ class IndexController extends Controller
      */
     public function show(Index $index)
     {
-        //
+        $index->load('book');
+
+        return response()->json($index);
     }
 
     /**
@@ -49,7 +77,32 @@ class IndexController extends Controller
      */
     public function update(Request $request, Index $index)
     {
-        //
+        $request->validate([
+            'book_id' => ['required', 'exists:books,id'],
+            'code'    => ['required'],
+        ]);
+
+        $book = Book::find($request->book_id);
+
+        $check = Index::query()
+            ->where('book_prefix', $book->prefix)
+            ->where('code', $request->code)
+            ->where('id', '!=', $index->id)
+            ->first();
+
+        if ($check) {
+            throw ValidationException::withMessages([
+                'code' => ['The provided code is taken.'],
+            ]);
+        }
+
+        $index->update([
+            'book_id' => $request->book_id,
+            'code' => $request->code,
+        ]);
+        $index->fresh();
+
+        return response()->json($index);
     }
 
     /**
@@ -60,6 +113,8 @@ class IndexController extends Controller
      */
     public function destroy(Index $index)
     {
-        //
+        $index->delete();
+
+        return response()->noContent();
     }
 }

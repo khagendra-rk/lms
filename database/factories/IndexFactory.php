@@ -27,7 +27,7 @@ class IndexFactory extends Factory
             'book_id' => $id,
             'book_prefix' => $code,
             'code' => $this->faker->unique()->numberBetween(100, 1000),
-            'borrowed' => $this->faker->boolean(),
+            'is_borrowed' => $this->faker->boolean(),
         ];
     }
 }

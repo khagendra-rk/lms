@@ -19,6 +19,11 @@ class Borrow extends Model
         'returned_at',
     ];
 
+    public function issuedBy()
+    {
+        return $this->belongsTo(User::class, 'issued_by', 'id');
+    }
+
     public function index()
     {
         return $this->belongsTo(Index::class);

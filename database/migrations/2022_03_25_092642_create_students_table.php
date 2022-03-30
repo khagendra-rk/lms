@@ -26,7 +26,7 @@ return new class extends Migration
             $table->integer('year');
             $table->string('image')->nullable();
             $table->string('registration_no')->nullable();
-            $table->string('symbol_no');
+            $table->string('symbol_no')->nullable();
             $table->string('documents')->nullable();
 
             $table->timestamps();

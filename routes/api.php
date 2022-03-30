@@ -39,10 +39,21 @@ Route::apiResource('/students', StudentController::class);
 Route::apiResource('/teachers', TeacherController::class);
 
 //Book Routes
+Route::controller(BookController::class)->prefix('/books/{book}/')->group(function () {
+    Route::get('indices', 'bookIndices');
+    Route::post('indices', 'addIndex');
+    Route::put('indices/{index}', 'updateIndex');
+    Route::delete('indices/{index}', 'destroyIndex');
+    Route::post('rangeindices', 'addRangeIndex');
+    Route::post('listindices', 'addListIndex');
+    Route::post('quantityindices', 'addQuantityIndex');
+});
+
+// Book CRUD
 Route::apiResource('/books', BookController::class);
 
 //Index Routes
-Route::apiResource('/indices', IndexController::class);
+// Route::apiResource('/indices', IndexController::class);
 
 //Borrow Routes
 Route::apiResource('/borrows', BorrowController::class);
