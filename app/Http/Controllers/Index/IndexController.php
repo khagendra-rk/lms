@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Index;
 
-use App\Http\Controllers\Controller;
+use App\Models\Book;
 use App\Models\Index;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Validation\ValidationException;
 
 class IndexController extends Controller
 {
