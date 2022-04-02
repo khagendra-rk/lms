@@ -11,6 +11,8 @@ use Illuminate\Validation\ValidationException;
 
 class BorrowController extends Controller
 {
+    const BORROW_LIMIT = 5;
+
     /**
      * Display a listing of the resource.
      *
@@ -51,12 +53,19 @@ class BorrowController extends Controller
             ]);
         }
 
-        $borrow = DB::transaction(function () use ($data, $index) {
+        $borrow = DB::transaction(function () use ($data, $index, $request) {
             $data = array_merge($data, [
-                'issued_by' => auth()->user()->id,
+                'issued_by' => auth()->user()->id ?? 1,
                 'issued_at' => now(),
             ]);
 
+            $check = $this->checkBorrow($request->index_id, $request->teacher_id, $request->student_id);
+            if ($check >= self::BORROW_LIMIT) {
+                throw ValidationException::withMessages([
+                    'teacher_id' => ['There is already ' . $check . ' book borrowed from this account. You cannot borrow more than ' . self::BORROW_LIMIT . ' book at a time!'],
+                    'student_id' => ['There is already ' . $check . ' book borrowed from this account. You cannot borrow more than ' . self::BORROW_LIMIT . ' book at a time!'],
+                ]);
+            }
             $borrow = Borrow::create($data);
             $index->update(['is_borrowed' => true]);
 
@@ -89,15 +98,33 @@ class BorrowController extends Controller
     public function update(Request $request, Borrow $borrow)
     {
         $data = $request->validate([
-            'index_id' => ['required', 'exists:indices,id'],
-            'teacher_id' => ['required_unless:student_id', 'exists:teachers,id'],
-            'student_id' => ['required_unless:teacher_id', 'exists:students,id'],
+            'index_id' => ['nullable', 'exists:indices,id'],
+            'teacher_id' => ['required_without:student_id', 'exists:teachers,id'],
+            'student_id' => ['required_without:teacher_id', 'exists:students,id'],
         ]);
 
-        $remove_previous = false;
-        $index = Index::find($request->index_id);
+        if (!empty($request->teacher_id) && !empty($request->student_id)) {
+            throw ValidationException::withMessages([
+                'teacher_id' => ['You need to either provide teacher ID or student ID.'],
+                'student_id' => ['You need to either provide teacher ID or student ID.'],
+            ]);
+        }
 
-        if ($request->index_id != $borrow->index_id) {
+        if (empty($request->teacher_id)) {
+            $data['teacher_id'] = null;
+        } else {
+            $data['student_id'] = null;
+        }
+
+        $remove_previous = false;
+        $index_id = $request->index_id;
+        if (empty($index_id)) {
+            $index_id = $borrow->index_id;
+        }
+
+        $index = Index::find($index_id);
+
+        if ($index_id != $borrow->index_id) {
             if ($index->is_borrowed) {
                 throw ValidationException::withMessages([
                     'index_id' => ['Book has already been borrowed!'],
@@ -107,17 +134,25 @@ class BorrowController extends Controller
             $remove_previous = true;
         }
 
-        DB::transaction(function () use ($data, $index, $remove_previous) {
+        DB::transaction(function () use ($data, $index, $remove_previous, $request, $borrow) {
 
             if ($remove_previous) {
                 $borrow->index()->update(['is_borrowed' => false]);
             }
 
-            $borrow->update([
-                ...$data,
-                'issued_by' => auth()->user()->id,
+            if ($request->student_id != $borrow->student_id || $request->teacher_id != $borrow->teacher_id) {
+                $check = $this->checkBorrow($request->index_id, $request->teacher_id, $request->student_id, $borrow->index_id);
+                if ($check >= self::BORROW_LIMIT - 1) {
+                    throw ValidationException::withMessages([
+                        'teacher_id' => ['There is already ' . $check . ' book borrowed from this account. You cannot borrow more than ' . self::BORROW_LIMIT . ' book at a time!'],
+                        'student_id' => ['There is already ' . $check . ' book borrowed from this account. You cannot borrow more than ' . self::BORROW_LIMIT . ' book at a time!'],
+                    ]);
+                }
+            }
+
+            $borrow->update(array_merge($data, [
                 'issued_at' => now(),
-            ]);
+            ]));
 
             $index->update(['is_borrowed' => true]);
         });
@@ -197,7 +232,23 @@ class BorrowController extends Controller
         return response()->noContent();
     }
 
-    // /**
+    public function checkBorrow($index, $teacher_id, $student_id, $index_id = null)
+    {
+        $query = Borrow::whereNull('returned_at');
+
+        if (!empty($teacher_id)) {
+            $query = $query->where('teacher_id', $teacher_id);
+        } else {
+            $query = $query->where('student_id', $student_id);
+        }
+
+        if (!empty($index_id)) {
+            $query = $query->where('index_id', '!=', $index_id);
+        }
+
+        return $query->count();
+    }
+
     //  * Return the borrowed item.
     //  *
     //  * @param  \App\Models\Borrow  $borrow

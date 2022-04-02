@@ -60,7 +60,7 @@ class StudentController extends Controller
      */
     public function show(Student $student)
     {
-        $student->load('faculty:id,name');
+        $student->load(['faculty:id,name', 'borrows']);
 
         return response()->json($student);
     }
