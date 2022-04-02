@@ -19,7 +19,8 @@ return new class extends Migration
             $table->foreignId('teacher_id')->nullable()->constrained();
             $table->foreignId('index_id')->nullable()->constrained();
             $table->foreignID('issued_by')->constrained('users', 'id');
-            $table->timestamp('issued_at');
+            $table->timestamp('issued_at')->nullable();
+            $table->timestamp('booked_at')->nullable();
             $table->timestamp('returned_at')->nullable();
             $table->timestamps();
             $table->softDeletes();

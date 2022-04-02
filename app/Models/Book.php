@@ -19,7 +19,7 @@ class Book extends Model
         'book_type',
         'price',
         'prefix',
-        'added by',
+        'added_by',
     ];
 
     public function faculties()
