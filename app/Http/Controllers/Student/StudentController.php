@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\Document;
 use App\Models\Student;
+use App\Services\MediaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class StudentController extends Controller
 {
@@ -112,6 +115,80 @@ class StudentController extends Controller
     public function destroy(Student $student)
     {
         $student->delete();
+
+        return response()->noContent();
+    }
+
+    public function documents(Student $student)
+    {
+        $documents = $student->documents;
+
+        return response()->json($documents);
+    }
+
+    public function storeDocument(Request $request, Student $student)
+    {
+        $request->validate([
+            'type' => ['required'],
+            'document' => ['required', 'file'],
+        ]);
+
+        $file = MediaService::upload($request->file('document'), 'documents');
+
+        $document = Document::create([
+            'student_id' => $student->id,
+            'type' => $request->type,
+            'file' => $file,
+        ]);
+
+        return response()->json($document);
+    }
+
+    public function updateDocument(Request $request, Student $student, Document $document)
+    {
+        $request->validate([
+            'type' => ['nullable'],
+            'document' => ['nullable', 'file'],
+        ]);
+
+        /**
+         * Due to PHP issue of not populating $_FILES variable when request is not
+         * both multipart/form-data AND POST method, we cannot use Postman's or Axios's
+         * PUT or PATCH method. Instead send request as POST but include "_method" = "PUT"
+         * or "_METHOD" = "PATCH" when sending form request.
+         *
+         * This only applies when sending FILES via PUT or PATCH method. You can send text
+         * input just fine.
+         *
+         * For more information see this: https://stackoverflow.com/a/65009135
+         * or https://stackoverflow.com/a/65009227
+         */
+        if ($request->hasFile('document')) {
+            if ($document->file) {
+                Storage::delete('public/' . $document->file);
+            }
+            $file = MediaService::upload($request->file('document'), 'documents');
+        } else {
+            $file = $document->file;
+        }
+
+        $document->update([
+            'type' => empty($request->type) ? $document->type : $request->type,
+            'file' => $file,
+        ]);
+        $document->fresh();
+
+        return response()->json($document);
+    }
+
+    public function showDocument(Student $student, Document $document)
+    {
+        return response()->json($document);
+    }
+
+    public function destroyDocument(Student $student, Document $document)
+    {
+        $document->delete();
 
         return response()->noContent();
     }

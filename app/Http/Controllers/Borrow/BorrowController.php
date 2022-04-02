@@ -55,7 +55,7 @@ class BorrowController extends Controller
 
         $borrow = DB::transaction(function () use ($data, $index, $request) {
             $data = array_merge($data, [
-                'issued_by' => auth()->user()->id ?? 1,
+                'issued_by' => auth()->user()->id,
                 'issued_at' => now(),
             ]);
 

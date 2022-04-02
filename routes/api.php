@@ -33,6 +33,14 @@ Route::apiResource('/users', UserController::class);
 Route::apiResource('/faculties', FacultyController::class);
 
 //Student Routes
+Route::controller(StudentController::class)->prefix('/students/{student}/')->group(function () {
+    Route::get('/documents', 'documents');
+    Route::post('/documents', 'storeDocument');
+    Route::get('/documents/{document}', 'showDocument');
+    Route::put('/documents/{document}', 'updateDocument');
+    Route::patch('/documents/{document}', 'updateDocument');
+    Route::delete('/documents/{document}', 'destroyDocument');
+});
 Route::apiResource('/students', StudentController::class);
 
 //Teacher Routes
