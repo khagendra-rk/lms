@@ -16,6 +16,7 @@ class Borrow extends Model
         'index_id',
         'issued_by',
         'issued_at',
+        'booked_at',
         'returned_at',
     ];
 

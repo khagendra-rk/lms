@@ -47,7 +47,7 @@ class IndexController extends Controller
         }
 
         $index = Index::create([
-            'book_id' => $request->book_id,
+            'book_id' => $book->id,
             'code' => $request->code,
             'book_prefix' => $book->prefix,
         ]);

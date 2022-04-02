@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use App\Models\Faculty;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -20,9 +21,17 @@ class StudentFactory extends Factory
         $count = Faculty::count();
         $id = mt_rand(1, $count - 1);
 
-        return [
+        $user = User::create([
             'name' => $this->faker->name(),
             'email' => $this->faker->safeEmail(),
+            'password' => bcrypt('password'),
+            'role' => 'Teacher',
+        ]);
+
+        return [
+            'name' => $user->name,
+            'email' => $user->email,
+            'user_id' => $user->id,
             'phone_no' => mt_rand(9800000000, 9999999999),
             'address' => $this->faker->city(),
             'parent_name' => $this->faker->name(),

@@ -24,6 +24,7 @@ class Student extends Model
         'image',
         'documents',
         'faculty_id',
+        'user_id',
     ];
 
     public function faculty()
@@ -38,5 +39,10 @@ class Student extends Model
     public function documents()
     {
         return $this->hasMany(Document::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

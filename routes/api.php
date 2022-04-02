@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Book\BookController;
+use App\Http\Controllers\Booking\BookingController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Index\IndexController;
 use App\Http\Controllers\Borrow\BorrowController;
@@ -21,47 +23,57 @@ use App\Http\Controllers\Teacher\TeacherController;
 |
 */
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
+Route::post('/login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->group(function () {
 
+    // Authentication
+    Route::controller(AuthController::class)->group(function () {
+        Route::get('/user', 'user');
+        Route::post('/logout', 'logout');
+    });
 
-//User Routes
-Route::apiResource('/users', UserController::class);
+    // Bookings
+    Route::controller(BookingController::class)->middleware(['booking'])->group(function () {
+        Route::get('/bookings', 'index');
+        Route::post('/bookings', 'store');
+        Route::delete('/bookings/{borrow}', 'cancel');
+    });
 
-//Faculty Routes
-Route::apiResource('/faculties', FacultyController::class);
+    //User Routes
+    Route::apiResource('/users', UserController::class);
 
-//Student Routes
-Route::controller(StudentController::class)->prefix('/students/{student}/')->group(function () {
-    Route::get('/documents', 'documents');
-    Route::post('/documents', 'storeDocument');
-    Route::get('/documents/{document}', 'showDocument');
-    Route::put('/documents/{document}', 'updateDocument');
-    Route::patch('/documents/{document}', 'updateDocument');
-    Route::delete('/documents/{document}', 'destroyDocument');
+    //Faculty Routes
+    Route::apiResource('/faculties', FacultyController::class);
+
+    //Student Routes
+    Route::controller(StudentController::class)->prefix('/students/{student}/')->group(function () {
+        Route::post('/bookings', 'bookingRequest');
+        Route::get('/documents', 'documents');
+        Route::post('/documents', 'storeDocument');
+        Route::get('/documents/{document}', 'showDocument');
+        Route::put('/documents/{document}', 'updateDocument');
+        Route::patch('/documents/{document}', 'updateDocument');
+        Route::delete('/documents/{document}', 'destroyDocument');
+    });
+    Route::apiResource('/students', StudentController::class);
+
+    //Teacher Routes
+    Route::apiResource('/teachers', TeacherController::class);
+
+    //Book Routes
+    Route::controller(BookController::class)->prefix('/books/{book}/')->group(function () {
+        Route::get('indices', 'bookIndices');
+        Route::post('indices', 'addIndex');
+        Route::put('indices/{index}', 'updateIndex');
+        Route::delete('indices/{index}', 'destroyIndex');
+        Route::post('rangeindices', 'addRangeIndex');
+        Route::post('listindices', 'addListIndex');
+        Route::post('quantityindices', 'addQuantityIndex');
+    });
+
+    // Book CRUD
+    Route::apiResource('/books', BookController::class);
+
+    //Borrow Routes
+    Route::apiResource('/borrows', BorrowController::class);
 });
-Route::apiResource('/students', StudentController::class);
-
-//Teacher Routes
-Route::apiResource('/teachers', TeacherController::class);
-
-//Book Routes
-Route::controller(BookController::class)->prefix('/books/{book}/')->group(function () {
-    Route::get('indices', 'bookIndices');
-    Route::post('indices', 'addIndex');
-    Route::put('indices/{index}', 'updateIndex');
-    Route::delete('indices/{index}', 'destroyIndex');
-    Route::post('rangeindices', 'addRangeIndex');
-    Route::post('listindices', 'addListIndex');
-    Route::post('quantityindices', 'addQuantityIndex');
-});
-
-// Book CRUD
-Route::apiResource('/books', BookController::class);
-
-//Index Routes
-// Route::apiResource('/indices', IndexController::class);
-
-//Borrow Routes
-Route::apiResource('/borrows', BorrowController::class);

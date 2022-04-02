@@ -17,10 +17,16 @@ class Teacher extends Model
         'email',
         'college_email',
         'image',
+        'user_id',
     ];
 
     public function borrows()
     {
         return $this->hasMany(Borrow::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

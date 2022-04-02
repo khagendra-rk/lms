@@ -192,4 +192,11 @@ class StudentController extends Controller
 
         return response()->noContent();
     }
+
+    public function bookingRequest(Student $student)
+    {
+        $bookings = Borrow::whereNotNull('booking_at')->whereNull('issued_at')->get();
+
+        return response()->json($bookings);
+    }
 }

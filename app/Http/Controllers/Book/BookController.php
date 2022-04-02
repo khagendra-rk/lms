@@ -42,6 +42,8 @@ class BookController extends Controller
             'book_type'     => ['required'],
         ]);
 
+        $data['added_by'] = auth()->id();
+
         $book = Book::create($data);
 
         return response()->json($book, 201);
