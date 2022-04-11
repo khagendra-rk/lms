@@ -40,11 +40,16 @@ class BookController extends Controller
             'prefix'        => ['required'],
             'added_by'      => ['nullable'],
             'book_type'     => ['required'],
+            'faculties'     => ['required', 'array'],
+            'faculties.*'   => ['required', 'integer', 'exists:faculties,id'],
         ]);
 
         $data['added_by'] = auth()->id();
 
         $book = Book::create($data);
+        $book->faculties()->sync($request->faculties);
+        $book->fresh();
+        $book->load('faculties');
 
         return response()->json($book, 201);
     }
@@ -57,6 +62,8 @@ class BookController extends Controller
      */
     public function show(Book $book)
     {
+        $book->load('faculties');
+
         return response()->json($book);
     }
 
@@ -79,9 +86,26 @@ class BookController extends Controller
             'prefix'        => ['nullable'],
             'added_by'      => ['nullable'],
             'book_type'     => ['nullable'],
+            'faculties'     => ['required', 'array'],
+            'faculties.*'   => ['required', 'integer', 'exists:faculties,id'],
         ]);
+
+        // if there is no array items
+        // $keys = array_keys($data);
+
+        // $keys = ['name', 'author', 'publication'];
+        // foreach ($keys as $key) {
+        //     if (empty($data[$key])) {
+        //         unset($data[$key]);
+        //     }
+        // }
+
         $book->update($data);
+        $book->faculties()->sync($request->faculties);
+
         $book->fresh();
+        $book->load('faculties');
+
         return response()->json($book);
     }
 
@@ -94,6 +118,59 @@ class BookController extends Controller
     public function destroy(Book $book)
     {
         $book->delete();
+
+        return response()->noContent();
+    }
+
+    public function search(Request $request)
+    {
+        $data = $request->validate([
+            'search' => ['required'],
+        ]);
+
+        $books = Book::where('name', 'like', '%' . $data['search'] . '%')
+            // ->orWhere('author', 'like', '%' . $data['search'] . '%')
+            // ->orWhere('publication', 'like', '%' . $data['search'] . '%')
+            // ->orWhere('edition', 'like', '%' . $data['search'] . '%')
+            // ->orWhere('prefix', 'like', '%' . $data['search'] . '%')
+            // ->orWhere('book_type', 'like', '%' . $data['search'] . '%')
+            ->paginate(10);
+
+        return response()->json($books);
+    }
+
+    public function faculties(Book $book)
+    {
+        $faculties = $book->faculties;
+
+        return response()->json($faculties);
+    }
+
+    public function removeFaculty(Book $book, Request $request)
+    {
+        $data = $request->validate([
+            'faculty_id' => ['required', 'integer', 'exists:faculties,id'],
+        ]);
+
+        $book->faculties()->detach($data['faculty_id']);
+
+        return response()->noContent();
+    }
+
+    public function addFaculty(Book $book, Request $request)
+    {
+        $data = $request->validate([
+            'faculty_id' => ['required', 'integer', 'exists:faculties,id'],
+        ]);
+
+        $existing = $book->faculties->pluck('id')->toArray();
+        if (in_array($data['faculty_id'], $existing)) {
+            throw ValidationException::withMessages([
+                'faculty_id' => ['The faculty is already added to this book.'],
+            ]);
+        }
+
+        $book->faculties()->attach($data['faculty_id']);
 
         return response()->noContent();
     }
