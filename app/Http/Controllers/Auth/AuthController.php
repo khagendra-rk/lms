@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -60,5 +61,62 @@ class AuthController extends Controller
         auth()->user()->tokens()->where('id', $tokenId)->delete();
 
         return response()->noContent();
+    }
+    public function forgetPassword()
+    {
+        $credentials = request()->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        Password::sendResetLink($credentials);
+        return response()->json(['message' => 'Reset password link has been sent to your email.']);
+
+        // if ($credentials['email'] == User::where('email', $credentials['email'])->first()->email) {
+        //     $user = User::where('email', $credentials['email'])->first();
+        //     $user->sendPasswordResetNotification($user->getEmailForPasswordReset());
+        // return response()->json(['message' => 'Reset password link has been sent to your email.']);
+        // }
+    }
+
+    public function resetPassword()
+    {
+        $credentials = request()->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string', 'max:25', 'confirmed'],
+            'token' => ['required', 'string'],
+        ]);
+        $email_password_status = Password::reset($credentials, function ($user, $password) {
+            $user->password = $password;
+            $user->save();
+        });
+        if ($email_password_status == Password::INVALID_TOKEN) {
+            return $this->response()->json(['message' => 'INVALID RESET_PASSWORD_TOKEN']);
+        }
+        return response()->json(['message' => 'Password successfully changed']);
+    }
+
+    public function changePassword(Request $request)
+    {
+
+        // $request->validate([
+        //     'current_password'  => ['required', 'current_password'],
+        //     'password'          => ['required', 'confirmed', 'min:6'],
+        // ]);
+
+        // auth()->user()->update([
+        //     'password' => bcrypt($request->password),
+        // ]);
+        $request->validate([
+            'current_password' => ['required'],
+            'new_password' => ['required', 'string', 'min:6', 'confirmed'],
+        ]);
+
+        $user = auth()->user();
+        if (Hash::check($request->current_password, $user->password)) {
+            $user->password = Hash::make($request->new_password);
+            $user->update();
+            return response()->json(['message' => 'Password successfully changed']);
+        }
+        return response()->json(['message' => 'Old password is incorrect']);
     }
 }

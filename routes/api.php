@@ -24,6 +24,11 @@ use App\Http\Controllers\Teacher\TeacherController;
 */
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forget-password', [AuthController::class, 'forgetPassword'])->name('password.reset');
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('/change-password', [AuthController::class, 'changePassword']);
+
+
 Route::middleware('auth:sanctum')->group(function () {
 
     // Authentication
