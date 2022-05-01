@@ -13,10 +13,6 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
-    const ROLES = [
-        'Admin', 'Librarian', 'Student', 'Teacher',
-    ];
-
     /**
      * The attributes that are mass assignable.
      *
@@ -26,7 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
+        'role_id',
     ];
 
     /**
@@ -56,5 +52,15 @@ class User extends Authenticatable
     public function student()
     {
         return $this->hasOne(Student::class);
+    }
+
+    public function role()
+    {
+        return $this->hasOne(Role::class);
+    }
+
+    public function permissions()
+    {
+        return $this->role->permissions();
     }
 }

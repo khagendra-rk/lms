@@ -25,7 +25,7 @@ class StudentFactory extends Factory
             'name' => $this->faker->name(),
             'email' => $this->faker->safeEmail(),
             'password' => bcrypt('password'),
-            'role' => 'Teacher',
+            'role_id' => '3',
         ]);
 
         return [
