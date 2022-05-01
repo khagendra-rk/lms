@@ -9,6 +9,8 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Index\IndexController;
 use App\Http\Controllers\Borrow\BorrowController;
 use App\Http\Controllers\Faculty\FacultyController;
+use App\Http\Controllers\Permission\PermissionController;
+use App\Http\Controllers\Role\RoleController;
 use App\Http\Controllers\Student\StudentController;
 use App\Http\Controllers\Teacher\TeacherController;
 
@@ -49,6 +51,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Faculty Routes
     Route::apiResource('/faculties', FacultyController::class);
+
+    //Role Routes
+    Route::apiResource('/roles', RoleController::class);
+
+    //Permission Routes
+    Route::apiResource('/permissions', PermissionController::class);
 
     //Student Routes
     Route::controller(StudentController::class)->prefix('/students/{student}/')->group(function () {
