@@ -20,6 +20,7 @@ class BorrowController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', Borrow::class);
         $borrows = Borrow::with(['teacher', 'student', 'index.book'])->paginate(10);
 
         return response()->json($borrows);
@@ -33,6 +34,7 @@ class BorrowController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Borrow::class);
         $data = $request->validate([
             'index_id' => ['required', 'exists:indices,id'],
             'teacher_id' => ['required_without:student_id', 'exists:teachers,id'],
@@ -83,6 +85,7 @@ class BorrowController extends Controller
      */
     public function show(Borrow $borrow)
     {
+        $this->authorize('view', $borrow);
         $borrow->load(['student', 'teacher', 'index.book']);
 
         return response()->json($borrow);
@@ -97,6 +100,7 @@ class BorrowController extends Controller
      */
     public function update(Request $request, Borrow $borrow)
     {
+        $this->authorize('update', $borrow);
         $data = $request->validate([
             'index_id' => ['nullable', 'exists:indices,id'],
             'teacher_id' => ['required_without:student_id', 'exists:teachers,id'],
@@ -170,6 +174,7 @@ class BorrowController extends Controller
      */
     public function return(Borrow $borrow)
     {
+        $this->authorize('return', $borrow);
         DB::transaction(function () use ($borrow) {
             $borrow->update(['returned_at' => now()]);
             $borrow->index()->update(['is_borrowed' => false]);
@@ -186,6 +191,8 @@ class BorrowController extends Controller
      */
     public function returnIndex(Request $request)
     {
+        $this->authorize('return', Borrow::class);
+
         $request->validate([
             'code' => ['required'],
             'prefix' => ['nullable'],
@@ -234,6 +241,8 @@ class BorrowController extends Controller
 
     public function checkBorrow($index, $teacher_id, $student_id, $index_id = null)
     {
+        $this->authorize('checkBorrow', Borrow::class);
+
         $query = Borrow::whereNull('returned_at');
 
         if (!empty($teacher_id)) {

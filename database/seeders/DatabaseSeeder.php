@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\Index;
 use App\Models\Borrow;
 use App\Models\Faculty;
+use App\Models\Permission;
+use App\Models\Role;
 use App\Models\Student;
 use App\Models\Teacher;
 use Illuminate\Database\Seeder;
@@ -23,6 +25,8 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Role::truncate();
+        Permission::truncate();
         User::truncate();
         Faculty::truncate();
         Book::truncate();
@@ -30,6 +34,19 @@ class DatabaseSeeder extends Seeder
         Student::truncate();
         Borrow::truncate();
         DB::table('book_faculty')->truncate();
+
+        Role::create([
+            'name' => 'admin',
+        ]);
+        Role::create([
+            'name' => 'librarian',
+        ]);
+        Role::create([
+            'name' => 'teacher',
+        ]);
+        Role::create([
+            'name' => 'student',
+        ]);
 
         User::create([
             'name' => 'Admin',
@@ -43,6 +60,19 @@ class DatabaseSeeder extends Seeder
             'email' => 'library@admin.com',
             'password' => bcrypt('password'),
             'role_id' => '2',
+        ]);
+        User::create([
+            'name' => 'Teacher',
+            'email' => 'teacher@admin.com',
+            'password' => bcrypt('password'),
+            'role_id' => '3',
+        ]);
+
+        User::create([
+            'name' => 'Student',
+            'email' => 'student@admin.com',
+            'password' => bcrypt('password'),
+            'role_id' => '4',
         ]);
 
         User::factory(100)->create();

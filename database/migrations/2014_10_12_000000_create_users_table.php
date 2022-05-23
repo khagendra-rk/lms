@@ -24,6 +24,11 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+        Schema::create('roles_users', function (Blueprint $table) {
+            $table->foreignId('role_id')->constrained();
+            $table->foreignId('user_id')->constrained();
+        });
     }
 
     /**

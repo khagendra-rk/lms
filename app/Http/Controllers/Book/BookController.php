@@ -30,6 +30,7 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize(Book::class);
         $data = $request->validate([
             'name'          => ['required'],
             'author'        => ['required'],
@@ -62,6 +63,7 @@ class BookController extends Controller
      */
     public function show(Book $book)
     {
+        $this->authorize($book);
         $book->load('faculties');
 
         return response()->json($book);
@@ -76,6 +78,7 @@ class BookController extends Controller
      */
     public function update(Request $request, Book $book)
     {
+        $this->authorize($book);
         $data = $request->validate([
             'name'          => ['nullable'],
             'author'        => ['nullable'],
@@ -117,6 +120,7 @@ class BookController extends Controller
      */
     public function destroy(Book $book)
     {
+        $this->authorize($book);
         $book->delete();
 
         return response()->noContent();
@@ -184,6 +188,7 @@ class BookController extends Controller
 
     public function addIndex(Request $request, Book $book)
     {
+        $this->authorize('create', $book);
         $request->validate([
             'code'    => ['required'],
         ]);
@@ -210,6 +215,8 @@ class BookController extends Controller
 
     public function updateIndex(Request $request, Book $book, Index $index)
     {
+        $this->authorize('update', $book);
+
         $request->validate([
             'code'    => ['required'],
         ]);
@@ -237,6 +244,8 @@ class BookController extends Controller
 
     public function destroyIndex(Book $book, Index $index)
     {
+        $this->authorize('destroy', $book);
+
         if ($index->is_borrowed) {
             return response()->json([
                 'error' => 'This book index is currently borrowed. You cannot delete this now!',
@@ -250,11 +259,14 @@ class BookController extends Controller
 
     public function addQuantityIndex(Book $book, Request $request)
     {
+        $this->authorize('create', $book);
+
         $request->validate([
             'quantity' => ['required', 'integer', 'gte:1'],
         ]);
 
         // Get Highest Book ID
+
         $latest_index = Index::orderBy('code', 'DESC')->first();
         if (empty($latest_index)) {
             $latest_index = 0;
@@ -279,6 +291,8 @@ class BookController extends Controller
 
     public function addRangeIndex(Book $book, Request $request)
     {
+        $this->authorize('create', $book);
+
         $request->validate([
             'min' => ['required', 'integer', 'gte:1'],
             'max' => ['required', 'integer', 'gt:min'],
@@ -319,6 +333,7 @@ class BookController extends Controller
 
     public function addListIndex(Book $book, Request $request)
     {
+        $this->authorize('create', $book);
         $request->validate([
             'codes' => ['required', 'array'],
             'codes.*' => ['required', 'integer'],

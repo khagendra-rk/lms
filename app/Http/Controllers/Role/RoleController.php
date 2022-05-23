@@ -15,17 +15,9 @@ class RoleController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $this->authorize('view-roles');
+        $roles = Role::all();
+        return response()->json($roles);
     }
 
     /**
@@ -36,7 +28,13 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->authorize('create', Role::class);
+        $data = $request->validate([
+            'name'      => ['required', 'unique:roles,name'],
+        ]);
+        $role = Role::create($data);
+        // $role->permissions()->sync($request->permission);
+        return response()->json($role, 201);
     }
 
     /**
@@ -47,18 +45,8 @@ class RoleController extends Controller
      */
     public function show(Role $role)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Role  $role
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Role $role)
-    {
-        //
+        $this->authorize('view', $role);
+        return response()->json($role);
     }
 
     /**
@@ -70,7 +58,14 @@ class RoleController extends Controller
      */
     public function update(Request $request, Role $role)
     {
-        //
+        $this->authorize('update', $role);
+        $data = $request->validate([
+            'name'      => ['required'],
+        ]);
+        $role->update($data);
+        $role->fresh();
+
+        return response()->json($role);
     }
 
     /**
@@ -81,6 +76,20 @@ class RoleController extends Controller
      */
     public function destroy(Role $role)
     {
-        //
+        $this->authorize('delete', $role);
+        $role->delete();
+        return response()->noContent();
+    }
+
+    public function assignPermission(Request $request, Role $role)
+    {
+        $this->authorize('update', $role);
+        $data = $request->validate([
+            'permission' => ['required', 'array'],
+            'permission.*' => ['numeric', 'exists:permissions,id'],
+        ]);
+        $role->permissions()->sync($data['permission']);
+        $role->fresh();
+        return response()->json($role);
     }
 }

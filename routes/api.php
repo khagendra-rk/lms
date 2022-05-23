@@ -45,20 +45,43 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/bookings', 'store');
         Route::delete('/bookings/{borrow}', 'cancel');
     });
+    Route::middleware(['role:admin,librarian'])->group(function () {
 
-    //User Routes
-    Route::apiResource('/users', UserController::class);
+        //User Routes
+        Route::apiResource('/users', UserController::class);
 
-    //Faculty Routes
-    Route::apiResource('/faculties', FacultyController::class);
+        //Faculty Routes
+        Route::apiResource('/faculties', FacultyController::class);
 
-    //Role Routes
-    Route::apiResource('/roles', RoleController::class);
+        //Role Routes
+        Route::post('/roles/{role}/permissions', [RoleController::class, 'assignPermission'])->name('roles.permissions');
+        Route::apiResource('/roles', RoleController::class);
 
-    //Permission Routes
-    Route::apiResource('/permissions', PermissionController::class);
+        //Permission Routes
+        Route::apiResource('/permissions', PermissionController::class);
 
-    //Student Routes
+        //Teacher Routes
+        Route::apiResource('/teachers', TeacherController::class);
+
+        //Book Routes
+        Route::controller(BookController::class)->prefix('/books/{book}/')->group(function () {
+            Route::get('indices', 'bookIndices');
+            Route::post('indices', 'addIndex');
+            Route::put('indices/{index}', 'updateIndex');
+            Route::delete('indices/{index}', 'destroyIndex');
+            Route::post('rangeindices', 'addRangeIndex');
+            Route::post('listindices', 'addListIndex');
+            Route::post('quantityindices', 'addQuantityIndex');
+        });
+
+        // Book CRUD
+        Route::apiResource('/books', BookController::class);
+
+        //Borrow Routes
+        Route::apiResource('/borrows', BorrowController::class);
+    });
+
+    //Student Routes    
     Route::controller(StudentController::class)->prefix('/students/{student}/')->group(function () {
         Route::post('/bookings', 'bookingRequest');
         Route::get('/documents', 'documents');
@@ -69,24 +92,4 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/documents/{document}', 'destroyDocument');
     });
     Route::apiResource('/students', StudentController::class);
-
-    //Teacher Routes
-    Route::apiResource('/teachers', TeacherController::class);
-
-    //Book Routes
-    Route::controller(BookController::class)->prefix('/books/{book}/')->group(function () {
-        Route::get('indices', 'bookIndices');
-        Route::post('indices', 'addIndex');
-        Route::put('indices/{index}', 'updateIndex');
-        Route::delete('indices/{index}', 'destroyIndex');
-        Route::post('rangeindices', 'addRangeIndex');
-        Route::post('listindices', 'addListIndex');
-        Route::post('quantityindices', 'addQuantityIndex');
-    });
-
-    // Book CRUD
-    Route::apiResource('/books', BookController::class);
-
-    //Borrow Routes
-    Route::apiResource('/borrows', BorrowController::class);
 });

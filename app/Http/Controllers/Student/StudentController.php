@@ -32,6 +32,7 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize(Student::class);
         $data = $request->validate([
             'name'          => ['required'],
             'phone_no'      => ['required', 'integer', 'digits:10', 'regex:/((98)|(97))(\d){8}/'],
@@ -64,6 +65,7 @@ class StudentController extends Controller
      */
     public function show(Student $student)
     {
+        $this->authorize($student);
         $student->load(['faculty:id,name', 'borrows']);
 
         return response()->json($student);
@@ -78,6 +80,7 @@ class StudentController extends Controller
      */
     public function update(Request $request, Student $student)
     {
+        $this->authorize($student);
         $data = $request->validate([
             'name'          => ['required'],
             'phone_no'      => ['required', 'integer', 'digits:10', 'regex:/((98)|(97))(\d){8}/'],
@@ -115,6 +118,7 @@ class StudentController extends Controller
      */
     public function destroy(Student $student)
     {
+        $this->authorize($student);
         $student->delete();
 
         return response()->noContent();

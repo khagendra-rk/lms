@@ -13,20 +13,18 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    /**
+     * It returns a JSON response of all the permissions in the database.
+     * 
+     * @return A collection of all the permissions in the database.
+     */
     public function index()
     {
-        //
+        // $this->authorize('view-permissions', Permission::class);
+        $permissons = Permission::all();
+        return response()->json($permissons);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -36,7 +34,14 @@ class PermissionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->authorize('create', Permission::class);
+        $data = $request->validate([
+            'name' => ['required'],
+            'slug' => ['required'],
+            'for' => ['required'],
+        ]);
+        $permission = Permission::create($data);
+        return response()->json($permission, 201);
     }
 
     /**
@@ -47,19 +52,10 @@ class PermissionController extends Controller
      */
     public function show(Permission $permission)
     {
-        //
+        $this->authorize('view', $permission);
+        return response()->json($permission);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Permission  $permission
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Permission $permission)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -70,7 +66,13 @@ class PermissionController extends Controller
      */
     public function update(Request $request, Permission $permission)
     {
-        //
+        $this->authorize('update', $permission);
+        $data = $request->validate([
+            'name' => ['required'],
+        ]);
+        $permission->update($data);
+        $permission->fresh();
+        return response()->json($permission);
     }
 
     /**
@@ -81,6 +83,8 @@ class PermissionController extends Controller
      */
     public function destroy(Permission $permission)
     {
-        //
+        $this->authorize('delete', $permission);
+        $permission->delete();
+        return response()->noContent();
     }
 }

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -16,8 +17,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::paginate(10);
-
+        $users = User::paginate(10)->except(Auth::id());
         return response()->json($users);
     }
 
@@ -29,17 +29,19 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize(User::class);
+
         $data = $request->validate([
             'name' => ['required'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'min:6'],
-            'role' => ['required', Rule::in(User::ROLES)],
+            'role_id' => ['exists:roles,id']
         ]);
 
         $data['password'] = bcrypt($data['password']);
 
         $user = User::create($data);
-
+        // $user->role()->sync($request->role);
         return response()->json($user, 201);
     }
 
@@ -51,6 +53,8 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
+        $this->authorize('view', $user);
+
         return response()->json($user);
     }
 
@@ -63,11 +67,12 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        $this->authorize('update', $user);
         $data = $request->validate([
 
             'email' => ['email', 'unique:users,email'],
             'password' => ['nullable', 'min:6'],
-            'role' => [Rule::in(User::ROLES)],
+            'role_id' => ['integer', 'exists:roles,id']
         ]);
 
         if (!empty($data['password'])) {
@@ -75,7 +80,6 @@ class UserController extends Controller
         } else {
             unset($data['password']);
         }
-
         $user->update($data);
         $user->fresh();
 
@@ -90,8 +94,8 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        $this->authorize('delete', $user);
         $user->delete();
-
         return response()->noContent();
     }
 }

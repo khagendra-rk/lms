@@ -30,6 +30,7 @@ class TeacherController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize(Teacher::class);
         $data = $request->validate([
             'name'          => ['required'],
             'phone_no'      => ['required', 'integer', 'digits:10', 'regex:/((98)|(97))(\d){8}/'],
@@ -56,6 +57,7 @@ class TeacherController extends Controller
      */
     public function show(Teacher $teacher)
     {
+        $this->authorize($teacher);
         return response()->json($teacher);
     }
 
@@ -68,6 +70,7 @@ class TeacherController extends Controller
      */
     public function update(Request $request, Teacher $teacher)
     {
+        $this->authorize($teacher);
         $data = $request->validate([
             'name'          => ['required'],
             'phone_no'      => ['required', 'integer', 'digits:10', 'regex:/((98)|(97))(\d){8}/'],
@@ -100,6 +103,7 @@ class TeacherController extends Controller
      */
     public function destroy(Teacher $teacher)
     {
+        $this->authorize($teacher);
         $teacher->delete();
 
         return response()->noContent();

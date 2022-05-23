@@ -27,6 +27,8 @@ class FacultyController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize(User::class);
+
         $data = $request->validate([
             'name'      => ['required'],
             'description' => ['nullable'],
@@ -44,6 +46,8 @@ class FacultyController extends Controller
      */
     public function show(Faculty $faculty)
     {
+        $this->authorize('view', $faculty);
+
         return response()->json($faculty);
     }
 
@@ -56,6 +60,8 @@ class FacultyController extends Controller
      */
     public function update(Request $request, Faculty $faculty)
     {
+        $this->authorize('update', $faculty);
+
         $data = $request->validate([
             'name'      => ['required'],
             'description' => ['nullable'],
@@ -74,6 +80,8 @@ class FacultyController extends Controller
      */
     public function destroy(Faculty $faculty)
     {
+        $this->authorize($faculty);
+
         $faculty->delete();
 
         return response()->noContent();

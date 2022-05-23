@@ -62,6 +62,7 @@ class AuthController extends Controller
 
         return response()->noContent();
     }
+
     public function forgetPassword()
     {
         $credentials = request()->validate([
