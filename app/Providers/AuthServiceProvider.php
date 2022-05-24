@@ -4,9 +4,13 @@ namespace App\Providers;
 
 use App\Policies\BookPolicy;
 use App\Policies\UserPolicy;
+use App\Policies\IndexPolicy;
+use App\Policies\BorrowPolicy;
 use App\Policies\FacultyPolicy;
+use App\Policies\RolePolicy;
+use App\Policies\StudentPolicy;
+use App\Policies\TeacherPolicy;
 use App\Policies\PermissionPolicy;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider

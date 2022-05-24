@@ -267,7 +267,7 @@ class BookController extends Controller
 
         // Get Highest Book ID
 
-        $latest_index = Index::orderBy('code', 'DESC')->first();
+        $latest_index = Index::orderBy('code', 'DESC')->first()->code;
         if (empty($latest_index)) {
             $latest_index = 0;
         }

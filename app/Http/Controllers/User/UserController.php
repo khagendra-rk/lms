@@ -17,7 +17,9 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::paginate(10)->except(Auth::id());
+        // $users = User::paginate(10)->except(Auth::id());
+        $users = User::paginate(10);
+
         return response()->json($users);
     }
 

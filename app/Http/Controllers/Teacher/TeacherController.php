@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Teacher;
 
-use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\Teacher;
-use App\Services\MediaService;
 use Illuminate\Http\Request;
+use App\Services\MediaService;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 
 class TeacherController extends Controller
@@ -38,15 +40,25 @@ class TeacherController extends Controller
             'email'         => ['required', 'email', 'unique:teachers,email'],
             'college_email' => ['nullable', 'email', 'unique:teachers,college_email'],
             'image'         => ['nullable', 'image', 'mimes:jpeg,png,gif'],
+            'password'      => ['required', 'min:6'],
         ]);
 
         if ($request->hasFile('image')) {
             $data['image'] = MediaService::upload($request->file('image'), "teachers");
         }
+        $data['password'] = bcrypt($request->password);
+        DB::transaction(function () use ($data) {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => $data['password'],
+                'role_id' => 3,
+            ]);
+            $data['user_id'] = $user->id;
+            Teacher::create($data);
+        });
 
-        $teacher = Teacher::create($data);
-
-        return response()->json($teacher, 201);
+        return response()->json($data, 201);
     }
 
     /**
