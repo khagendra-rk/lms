@@ -19,7 +19,7 @@ class HasRoleMiddleware
     public function handle(Request $request, Closure $next, String $name)
     {
         $user = User::find(Auth::id());
-        if (!auth()->user() || $user->hasRole($name)) {
+        if (!$user->hasRole($name)) {
             abort(403, 'Unauthorized action.');
         }
         return $next($request);

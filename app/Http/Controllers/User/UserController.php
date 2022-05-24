@@ -31,7 +31,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $this->authorize(User::class);
+        $this->authorize('create', User::class);
 
         $data = $request->validate([
             'name' => ['required'],
