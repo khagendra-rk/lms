@@ -15,6 +15,11 @@ class BookController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    /**
+     * It returns a JSON response of all the books in the database, paginated by 10.
+     * 
+     * @return A JSON response of all the books in the database.
+     */
     public function index()
     {
         $books = Book::paginate(10);
@@ -60,6 +65,13 @@ class BookController extends Controller
      *
      * @param  \App\Models\Book  $book
      * @return \Illuminate\Http\Response
+     */
+    /**
+     * It loads the book with the faculties that are associated with it
+     * 
+     * @param Book book The model instance that the policy applies to.
+     * 
+     * @return A JSON object of the book.
      */
     public function show(Book $book)
     {
@@ -179,6 +191,13 @@ class BookController extends Controller
         return response()->noContent();
     }
 
+    /**
+     * It returns a paginated list of indices for a given book
+     * 
+     * @param Book book The book object
+     * 
+     * @return A collection of indices.
+     */
     public function bookIndices(Book $book)
     {
         $indices = Index::where('book_id', $book->id)->paginate(30);
@@ -186,6 +205,14 @@ class BookController extends Controller
         return response()->json($indices);
     }
 
+    /**
+     * It creates a new index for a book
+     * 
+     * @param Request request The request object.
+     * @param Book book The book model
+     * 
+     * @return The index is being returned.
+     */
     public function addIndex(Request $request, Book $book)
     {
         $this->authorize('create', $book);
@@ -213,6 +240,15 @@ class BookController extends Controller
         return response()->json($index);
     }
 
+    /**
+     * It updates the index code of a book.
+     * 
+     * @param Request request The request object.
+     * @param Book book The book model
+     * @param Index index the index that is being updated
+     * 
+     * @return The updated index.
+     */
     public function updateIndex(Request $request, Book $book, Index $index)
     {
         $this->authorize('update', $book);
@@ -242,9 +278,15 @@ class BookController extends Controller
         return response()->json($index);
     }
 
+    /**
+     * It deletes the index of a book if it is not borrowed
+     * 
+     * @param Book book The book model instance.
+     * @param Index index The index of the book
+     */
     public function destroyIndex(Book $book, Index $index)
     {
-        $this->authorize('destroy', $book);
+        $this->authorize('delete', $book);
 
         if ($index->is_borrowed) {
             return response()->json([
@@ -257,6 +299,14 @@ class BookController extends Controller
         return response()->noContent();
     }
 
+    /**
+     * It adds a quantity of indices to a book
+     * 
+     * @param Book book The book object
+     * @param Request request 
+     * 
+     * @return The response is a JSON object.
+     */
     public function addQuantityIndex(Book $book, Request $request)
     {
         $this->authorize('create', $book);
@@ -289,6 +339,14 @@ class BookController extends Controller
         return response()->json($all_indices);
     }
 
+    /**
+     * It adds a range of indices to a book
+     * 
+     * @param Book book The book model
+     * @param Request request 
+     * 
+     * @return The response is a JSON object containing the newly created indices.
+     */
     public function addRangeIndex(Book $book, Request $request)
     {
         $this->authorize('create', $book);
@@ -331,6 +389,15 @@ class BookController extends Controller
         return response()->json($all_indices);
     }
 
+    /**
+     * It takes a book and a request, validates the request, checks if the book has any indices with
+     * the same code, if not, it creates the indices and returns the indices
+     * 
+     * @param Book book the book object
+     * @param Request request 
+     * 
+     * @return The response is a JSON object containing the newly created indices.
+     */
     public function addListIndex(Book $book, Request $request)
     {
         $this->authorize('create', $book);

@@ -90,6 +90,7 @@ class RoleController extends Controller
         ]);
         $role->permissions()->sync($data['permission']);
         $role->fresh();
+        $role->load('permissions');
         return response()->json($role);
     }
 }

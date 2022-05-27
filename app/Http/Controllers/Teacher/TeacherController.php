@@ -30,6 +30,7 @@ class TeacherController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
     public function store(Request $request)
     {
         $this->authorize(Teacher::class);
@@ -50,7 +51,7 @@ class TeacherController extends Controller
         DB::transaction(function () use ($data) {
             $user = User::create([
                 'name' => $data['name'],
-                'email' => $data['email'],
+                'email' => $data['college_email'],
                 'password' => $data['password'],
                 'role_id' => 3,
             ]);
@@ -84,10 +85,10 @@ class TeacherController extends Controller
     {
         $this->authorize($teacher);
         $data = $request->validate([
-            'name'          => ['required'],
-            'phone_no'      => ['required', 'integer', 'digits:10', 'regex:/((98)|(97))(\d){8}/'],
-            'address'       => ['required'],
-            'email'         => ['required', 'email', 'unique:teachers,email'],
+            'name'          => ['nullalble'],
+            'phone_no'      => ['nullalble', 'integer', 'digits:10', 'regex:/((98)|(97))(\d){8}/'],
+            'address'       => ['nullalble'],
+            'email'         => ['nullalble', 'email', 'unique:teachers,email'],
             'college_email' => ['required', 'email', 'unique:teachers,college_email'],
             'image'         => ['nullable', 'image', 'mimes:jpeg,png,gif'],
         ]);

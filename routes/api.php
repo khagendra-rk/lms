@@ -78,6 +78,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('/books', BookController::class);
 
         //Borrow Routes
+        Route::get('/borrows/{borrow}/returns', [BorrowController::class, 'return'])->name('borrows.return');
+        Route::put('/returnindex', [BorrowController::class, 'returnIndex'])->name('borrows.returnindex');
+        Route::put('/borrows/checkborrows', [BorrowController::class, 'checkBorrow'])->name('borrows.checkborrow');
         Route::apiResource('/borrows', BorrowController::class);
     });
 

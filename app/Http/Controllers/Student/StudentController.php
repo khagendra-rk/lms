@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Student;
 
+use App\Models\User;
 use App\Models\Borrow;
 use App\Models\Student;
 use App\Models\Document;
 use Illuminate\Http\Request;
 use App\Services\MediaService;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 
@@ -46,15 +48,25 @@ class StudentController extends Controller
             'image'          => ['nullable', 'image', 'mimes:jpeg,png,gif'],
             'registration_no' => ['nullable'],
             'symbol_no'      => ['required'],
+            'password' => ['required', 'min:6'],
         ]);
 
         if ($request->hasFile('image')) {
             $data['image'] = MediaService::upload($request->file('image'), "students");
         }
+        $data['password'] = bcrypt($request->password);
+        DB::transaction(function () use ($data) {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['college_email'],
+                'password' => $data['password'],
+                'role_id' => 4,
+            ]);
+            $data['user_id'] = $user->id;
+            Student::create($data);
+        });
 
-        $student = Student::create($data);
-
-        return response()->json($student, 201);
+        return response()->json($data, 201);
     }
 
     /**
