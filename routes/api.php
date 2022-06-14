@@ -72,6 +72,9 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('rangeindices', 'addRangeIndex');
             Route::post('listindices', 'addListIndex');
             Route::post('quantityindices', 'addQuantityIndex');
+            Route::get('faculties', 'faculties');
+            Route::post('faculties', 'removeFaculty');
+            Route::post('addfaculties', 'addFaculty');
         });
 
         // Book CRUD
