@@ -46,7 +46,7 @@ class AuthController extends Controller
         if (!empty($request->logout_all)) {
             auth()?->user()?->tokens()?->delete();
 
-            return response()->noContent();
+            return response()->json(['message' => 'Logged out all tokens.']);
         }
 
         // Get Bearer Token from header
@@ -68,6 +68,10 @@ class AuthController extends Controller
         $credentials = request()->validate([
             'email' => ['required', 'email'],
         ]);
+        $user = User::where('email', $credentials['email'])->first();
+        if ($user == null) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
 
         Password::sendResetLink($credentials);
         return response()->json(['message' => 'Reset password link has been sent to your email.']);
