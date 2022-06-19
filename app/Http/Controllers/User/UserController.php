@@ -37,14 +37,14 @@ class UserController extends Controller
             'name' => ['required'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'min:6'],
-            'role_id' => ['exists:roles,id']
+            'role_id' => ['required', 'exists:roles,id']
         ]);
 
         $data['password'] = bcrypt($data['password']);
 
         $user = User::create($data);
         // $user->role()->sync($request->role);
-        return response()->json($user, 201);
+        return response()->json(['message' => 'User Created Succesfully!', 'user' => $user], 201);
     }
 
     /**
@@ -71,7 +71,7 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
         $data = $request->validate([
-
+            'name' => ['nullable'],
             'email' => ['email', 'unique:users,email'],
             'password' => ['nullable', 'min:6'],
             'role_id' => ['integer', 'exists:roles,id']
@@ -85,7 +85,7 @@ class UserController extends Controller
         $user->update($data);
         $user->fresh();
 
-        return response()->json($user);
+        return response()->json(['message' => 'User updated successfully!', 'user' => $user], 200);
     }
 
     /**
@@ -98,6 +98,6 @@ class UserController extends Controller
     {
         $this->authorize('delete', $user);
         $user->delete();
-        return response()->noContent();
+        return response()->json(['message' => 'User deleted successfully'], 204);
     }
 }

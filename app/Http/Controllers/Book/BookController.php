@@ -57,7 +57,7 @@ class BookController extends Controller
         $book->fresh();
         $book->load('faculties');
 
-        return response()->json($book, 201);
+        return response()->json(['message' => 'Book Created Successfully!', 'book' => $book], 201);
     }
 
     /**
