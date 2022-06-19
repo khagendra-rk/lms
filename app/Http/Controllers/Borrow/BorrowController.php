@@ -36,7 +36,8 @@ class BorrowController extends Controller
     {
         $this->authorize('create', Borrow::class);
         $data = $request->validate([
-            'index_id' => ['required', 'exists:indices,id'],
+            'index_id' => ['required_if:code,null', 'exists:indices,id'],
+            'code' => ['required_if:index_id,null'],
             'teacher_id' => ['required_without:student_id', 'exists:teachers,id'],
             'student_id' => ['required_without:teacher_id', 'exists:students,id'],
         ]);
@@ -48,7 +49,31 @@ class BorrowController extends Controller
             ]);
         }
 
-        $index = Index::find($request->index_id);
+        if ($request->index_id) {
+            $index = Index::find($request->index_id);
+        } else {
+            $codes = explode("-", $request->code);
+            if (count($codes) == 0) {
+                throw ValidationException::withMessages([
+                    'code' => ['Invalid code.'],
+                ]);
+            }
+
+            $index = Index::where('book_prefix', $codes[0])->where('code', $codes[1])->first();
+        }
+
+        if (!$index && $request->code) {
+            throw ValidationException::withMessages([
+                'code' => ['Invalid code.'],
+            ]);
+        }
+
+        if (!$index && $request->index_id) {
+            throw ValidationException::withMessages([
+                'index_id' => ['Invalid Index ID.'],
+            ]);
+        }
+
         if ($index->is_borrowed) {
             throw ValidationException::withMessages([
                 'index_id' => ['Book has already been borrowed!'],
@@ -214,9 +239,12 @@ class BorrowController extends Controller
 
 
         $index = Index::where('book_prefix', $prefix)->where('code', $code)->first();
-        throw ValidationException::withMessages([
-            'code' => ['Cannot find book from given code!'],
-        ]);
+        if (!$index) {
+            throw ValidationException::withMessages([
+                'code' => ['Invalid Code!'],
+            ]);
+        }
+
 
         if (!$index->is_borrowed) {
             throw ValidationException::withMessages([
@@ -224,7 +252,7 @@ class BorrowController extends Controller
             ]);
         }
 
-        $borrow = $index->borrows()->where('returned_at', '')->first();
+        $borrow = $index->borrows()->whereNull('returned_at')->first();
         if (!$borrow) {
             throw ValidationException::withMessages([
                 'index_id' => ['Book has not been borrowed or has already been returned!'],

@@ -24,7 +24,7 @@ class Book extends Model
 
     public function faculties()
     {
-        return $this->belongsToMany(Faculty::class);
+        return $this->belongsToMany(Faculty::class)->withPivot('semester');
     }
 
     public function indices()

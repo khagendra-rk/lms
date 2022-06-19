@@ -138,7 +138,7 @@ class StudentController extends Controller
 
     public function documents(Student $student)
     {
-        $documents = $student->documents;
+        $documents = $student->documents()->get();
 
         return response()->json($documents);
     }

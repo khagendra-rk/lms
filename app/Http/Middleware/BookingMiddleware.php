@@ -16,6 +16,8 @@ class BookingMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
+        // dd(auth()->user(), auth()->user()->teacher, auth()->user()->student);
+
         if (!auth()->user()->teacher && !auth()->user()->student) {
             return response()->json([
                 'error' => ['You need to be either teacher or student to place booking!'],

@@ -48,7 +48,7 @@ class TeacherController extends Controller
             $data['image'] = MediaService::upload($request->file('image'), "teachers");
         }
         $data['password'] = bcrypt($request->password);
-        DB::transaction(function () use ($data) {
+        $teacher = DB::transaction(function () use ($data) {
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['college_email'],
@@ -56,10 +56,10 @@ class TeacherController extends Controller
                 'role_id' => 3,
             ]);
             $data['user_id'] = $user->id;
-            Teacher::create($data);
+            return Teacher::create($data);
         });
 
-        return response()->json($data, 201);
+        return response()->json($teacher, 201);
     }
 
     /**

@@ -48,12 +48,25 @@ class BookController extends Controller
             'book_type'     => ['required'],
             'faculties'     => ['required', 'array'],
             'faculties.*'   => ['required', 'integer', 'exists:faculties,id'],
+            'semesters'     => ['required', 'array'],
+            'semesters.*'   => ['required', 'integer', 'min:1', 'max:8'],
         ]);
+
+        if (count($data['faculties']) != count($data['semesters'])) {
+            throw ValidationException::withMessages([
+                'faculties' => ['The faculties and semesters must be equal in length.'],
+                'semesters' => ['The faculties and semesters must be equal in length.'],
+            ]);
+        }
 
         $data['added_by'] = auth()->id();
 
         $book = Book::create($data);
-        $book->faculties()->sync($request->faculties);
+
+        foreach ($request->faculties as $index => $faculty) {
+            $book->faculties()->attach($faculty, ['semester' => $data['semesters'][$index]]);
+        }
+
         $book->fresh();
         $book->load('faculties');
 
@@ -103,7 +116,16 @@ class BookController extends Controller
             'book_type'     => ['nullable'],
             'faculties'     => ['nullable', 'array'],
             'faculties.*'   => ['nullable', 'integer', 'exists:faculties,id'],
+            'semesters'     => ['required', 'array'],
+            'semesters.*'   => ['required', 'integer', 'min:1', 'max:8'],
         ]);
+
+        if (count($data['faculties']) != count($data['semesters'])) {
+            throw ValidationException::withMessages([
+                'faculties' => ['The faculties and semesters must be equal in length.'],
+                'semesters' => ['The faculties and semesters must be equal in length.'],
+            ]);
+        }
 
         // if there is no array items
         // $keys = array_keys($data);
@@ -116,7 +138,10 @@ class BookController extends Controller
         // }
 
         $book->update($data);
-        $book->faculties()->sync($request->faculties);
+        $book->faculties()->sync([]);
+        foreach ($request->faculties as $index => $faculty) {
+            $book->faculties()->attach($faculty, ['semester' => $data['semesters'][$index]]);
+        }
 
         $book->fresh();
         $book->load('faculties');
