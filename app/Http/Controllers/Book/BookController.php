@@ -202,6 +202,7 @@ class BookController extends Controller
     {
         $data = $request->validate([
             'faculty_id' => ['required', 'integer', 'exists:faculties,id'],
+            'semester' => ['required', 'integer', 'min:1', 'max:8'],
         ]);
 
         $existing = $book->faculties->pluck('id')->toArray();
@@ -211,7 +212,7 @@ class BookController extends Controller
             ]);
         }
 
-        $book->faculties()->attach($data['faculty_id']);
+        $book->faculties()->attach($data['faculty_id'], ['semester' => $data['semester']]);
 
         return response()->noContent();
     }
