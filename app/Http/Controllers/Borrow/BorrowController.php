@@ -264,7 +264,7 @@ class BorrowController extends Controller
             $index->update(['is_borrowed' => false]);
         });
 
-        return response()->noContent();
+        return response()->json(['message' => 'Book has been returned successfully!'], 200);
     }
 
     public function checkBorrow($index, $teacher_id, $student_id, $index_id = null)

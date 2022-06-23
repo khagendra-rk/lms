@@ -114,10 +114,10 @@ class BookController extends Controller
             'prefix'        => ['nullable'],
             'added_by'      => ['nullable'],
             'book_type'     => ['nullable'],
-            'faculties'     => ['nullable', 'array'],
+            'faculties'     => ['required', 'array'],
             'faculties.*'   => ['nullable', 'integer', 'exists:faculties,id'],
             'semesters'     => ['required', 'array'],
-            'semesters.*'   => ['required', 'integer', 'min:1', 'max:8'],
+            'semesters.*'   => ['nullable', 'integer', 'min:1', 'max:8'],
         ]);
 
         if (count($data['faculties']) != count($data['semesters'])) {
@@ -160,7 +160,7 @@ class BookController extends Controller
         $this->authorize($book);
         $book->delete();
 
-        return response()->noContent();
+        return response()->json(['message' => 'Book Deleted Successfully!'], 200);
     }
 
     public function search(Request $request)
@@ -195,7 +195,7 @@ class BookController extends Controller
 
         $book->faculties()->detach($data['faculty_id']);
 
-        return response()->noContent();
+        return response()->json(['message' => 'Faculty Removed Successfully from this book!'], 200);
     }
 
     public function addFaculty(Book $book, Request $request)
@@ -214,7 +214,7 @@ class BookController extends Controller
 
         $book->faculties()->attach($data['faculty_id'], ['semester' => $data['semester']]);
 
-        return response()->noContent();
+        return response()->json(['message' => 'Faculty has been added to this book!'], 200);
     }
 
     /**
